@@ -38,7 +38,7 @@ function UploadForm() {
         const statsRes = await axios.post(
             "http://localhost:5000/stats",
             formData,
-            { headers: { 'Content-Type': 'multipart/form-data' } }
+            { headers: { "Content-Type": "multipart/form-data" } }
         );
         setStats(statsRes.data);
     };
