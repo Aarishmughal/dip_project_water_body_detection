@@ -65,10 +65,26 @@ def processed_image():
         return jsonify({'error': 'Processed image not found.'}), 404
     return send_file(file_path, mimetype='image/png')
 
-# Remove or implement the /stats route to avoid errors
-# @app.route('/stats', methods=['POST'])
-# def pixel_stats():
-#     pass
+@app.route('/stats', methods=['POST'])
+def stats():
+    file = request.files['image']
+    hsv_values = request.form
+
+    img = Image.open(file.stream).convert("RGB")
+    img_np = np.array(img)
+    img_cv = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
+
+    lower = np.array([int(hsv_values['h_min']), int(hsv_values['s_min']), int(hsv_values['v_min'])])
+    upper = np.array([int(hsv_values['h_max']), int(hsv_values['s_max']), int(hsv_values['v_max'])])
+
+    water_only, contour_img, water_pixels, percentage, _ = detect_water_and_contours(img_cv, (lower, upper))
+    total_pixels = img_cv.shape[0] * img_cv.shape[1]
+    stats = {
+        'total_pixels': int(total_pixels),
+        'water_pixels': int(water_pixels),
+        'water_percentage': float(percentage)
+    }
+    return jsonify(stats)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -7,6 +7,7 @@ function UploadForm() {
     const [image, setImage] = useState(null);
     const [processedImage, setProcessedImage] = useState(null);
     const [showEdges, setShowEdges] = useState(false);
+    const [stats, setStats] = useState(null);
     const imageSrc = showEdges
         ? "http://localhost:5000/edges"
         : "http://localhost:5000/processed";
@@ -33,6 +34,13 @@ function UploadForm() {
             { responseType: "blob" }
         );
         setProcessedImage(URL.createObjectURL(res.data));
+        // Fetch stats
+        const statsRes = await axios.post(
+            "http://localhost:5000/stats",
+            formData,
+            { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        setStats(statsRes.data);
     };
 
     const handleChange = (e) => {
@@ -124,6 +132,29 @@ function UploadForm() {
                     {showEdges ? "Show Normal View" : "Show Edge View"}
                 </button>
             </div>
+
+            {stats && (
+                <div className="row mb-3">
+                    <div className="col-md-4">
+                        <div className="alert alert-info text-center">
+                            <strong>Total Pixels</strong>
+                            <div>{stats.total_pixels}</div>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="alert alert-primary text-center">
+                            <strong>Water Pixels</strong>
+                            <div>{stats.water_pixels}</div>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="alert alert-success text-center">
+                            <strong>Water Percentage</strong>
+                            <div>{stats.water_percentage.toFixed(2)}%</div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="row">
                 {processedImage && (
