@@ -14,3 +14,4 @@ function Histogram({ data }) {
 
     return <Bar data={chartData} />;
 }
+export default Histogram;
